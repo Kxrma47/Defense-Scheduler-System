@@ -13,8 +13,15 @@
     --animation-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --animation-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
+
+/* Force dark theme */
+html[data-theme="dark"], html[data-theme="dark"] body {
+    background-color: #0b1220 !important;
+    color: #e5e7eb !important;
+}
 *{box-sizing:border-box}
 html,body{height:100%}
+html{background-color:#0b1220}
 body{
     margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);
     background:
@@ -23,6 +30,7 @@ body{
     radial-gradient(800px 500px at 85% 80%, #0e1c36 0%, transparent 60%),
     radial-gradient(600px 400px at 15% 20%, #091224 0%, transparent 70%),
     linear-gradient(180deg,var(--bg),var(--bg2));
+    background-color: #0b1220 !important;
     overflow-x:hidden;
     position: relative;
 }
