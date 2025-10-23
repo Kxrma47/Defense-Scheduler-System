@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Defense Scheduler System
 
 A comprehensive web-based defense scheduling system designed for academic institutions to manage thesis defense sessions, professor assignments, and scheduling preferences through an intuitive role-based interface.
@@ -311,21 +311,23 @@ The system supports multiple languages:
 4. Test thoroughly
 5. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Check the documentation
-- Review the API endpoints
-- Test with the provided scripts
-- Create an issue for bugs or feature requests
-
----
-
 **Defense Scheduler System** - Streamlining academic defense scheduling with modern web technologies and intuitive user interfaces.
-=======
-# Defense-Scheduler-System
->>>>>>> 9cf0e6cc2cc6584a0a8b380e5837b5a1bb591dbc
+**Managers Console**
+<img width="1678" height="943" alt="Screenshot 2025-10-23 at 6 19 16 PM" src="https://github.com/user-attachments/assets/7b5bcf84-75f2-4f04-aab8-80a494f7a1ce" />
+<img width="1672" height="973" alt="Screenshot 2025-10-23 at 6 19 32 PM" src="https://github.com/user-attachments/assets/24d5a467-2404-41a9-93bf-49f7381b69e3" />
+<img width="1681" height="983" alt="Screenshot 2025-10-23 at 6 19 44 PM" src="https://github.com/user-attachments/assets/c027fb5e-a266-462d-97f9-e76f06d7c20b" />
+<img width="1686" height="978" alt="Screenshot 2025-10-23 at 6 20 01 PM" src="https://github.com/user-attachments/assets/4821ad8c-65e3-485b-b538-51759bc41414" />
+
+
+
+**Assistants Console**
+<img width="1375" height="975" alt="Screenshot 2025-10-23 at 6 20 55 PM" src="https://github.com/user-attachments/assets/47efa9f9-f4ee-46bc-9b71-daa505e8eb00" />
+<img width="1365" height="988" alt="Screenshot 2025-10-23 at 6 21 05 PM" src="https://github.com/user-attachments/assets/5d3cb9f0-4ccd-446e-86ca-0f74497f782f" />
+<img width="1358" height="993" alt="Screenshot 2025-10-23 at 6 21 24 PM" src="https://github.com/user-attachments/assets/e804564d-e261-4f7b-b387-8c1162228905" />
+
+
+
+**Professors Console**
+<img width="1621" height="986" alt="Screenshot 2025-10-23 at 6 23 52 PM" src="https://github.com/user-attachments/assets/13825828-705d-44a6-87c9-a3885e7bde1b" />
+<img width="1625" height="990" alt="Screenshot 2025-10-23 at 6 24 22 PM" src="https://github.com/user-attachments/assets/6e6fed8d-d42c-4aa7-992d-825f39b81bc1" />
+
