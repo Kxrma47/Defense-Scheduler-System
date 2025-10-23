@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Defense Scheduler System
 
 A comprehensive web-based defense scheduling system designed for academic institutions to manage thesis defense sessions, professor assignments, and scheduling preferences through an intuitive role-based interface.
@@ -325,3 +326,6 @@ For support and questions:
 ---
 
 **Defense Scheduler System** - Streamlining academic defense scheduling with modern web technologies and intuitive user interfaces.
+=======
+# Defense-Scheduler-System
+>>>>>>> 9cf0e6cc2cc6584a0a8b380e5837b5a1bb591dbc
