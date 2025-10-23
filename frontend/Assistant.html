@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Assistant Console</title>
+    <link rel="stylesheet" href="assistant.css">
+</head>
+<body>
+<div class="aurora"></div>
+<div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+</div>
+
+<div class="wrap">
+    <div class="bar">
+        <div>
+            <h1 class="title" id="title" data-i18n="assistant_console">Assistant Console</h1>
+            <div class="sub" id="me"></div>
+        </div>
+        <div class="controls">
+            <div class="inline" role="group" aria-label="Language">
+                <button class="mini toggle" id="langEN" onclick="setLang('en')">EN</button>
+                <button class="mini toggle" id="langRU" onclick="setLang('ru')">RU</button>
+            </div>
+            <button class="btn ghost" id="btnBack" onclick="logout(event)" data-i18n="back_to_login">← Back to login</button>
+        </div>
+    </div>
+
+    <!-- Overview and Chart Side by Side -->
+    <div class="row">
+        <!-- Professor Overview -->
+        <div class="col-6 card">
+            <h2 style="margin:0 0 8px" data-i18n="prof_overview">Professor Overview</h2>
+            <div class="visual-grid">
+                <div>
+                    <div class="muted" style="margin-bottom:6px" id="hintClick" data-i18n="click_name">Click a name to focus.</div>
+                    <div id="profList" class="prof-list"></div>
+                </div>
+                <div>
+                    <div class="svgwrap">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px 0 12px">
+                            <h3 id="topoTitle" style="margin:0" data-i18n="topology_pick">Topology · pick a professor</h3>
+                            <span class="muted" id="topoMeta"></span>
+                        </div>
+                        <svg id="topology" width="100%" height="360" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart: Professors per Offer -->
+        <div class="col-6 card chart-card">
+            <div style="display:flex;align-items:baseline;justify-content:space-between">
+                <h3 style="margin:4px 0 2px" data-i18n="profs_per_offer">Professors per Offer</h3>
+                <span class="muted" id="chartSub" data-i18n="chart_subtitle">Top windows by professor count</span>
+            </div>
+            <div class="chart-scroll-container" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--line-2); border-radius: 12px; background: rgba(15,23,42,0.2); padding: 12px;">
+                <canvas id="chartSpark" aria-label="Professors per offer" role="img"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Window + Windows -->
+    <div class="row">
+        <div class="col-6 card">
+            <h3 data-i18n="create_window">Create Window</h3>
+
+            <div class="row">
+                <div class="col-6">
+                    <label class="req" id="lblStart" data-i18n="start_dt">Start date &amp; time</label>
+                    <!-- Themed date-time input -->
+                    <div class="date-wrap">
+                        <input id="winStart" class="inp" type="text" placeholder="YYYY-MM-DDTHH:mm" readonly/>
+                        <button class="icon-btn" data-dtp="winStart" aria-label="Open calendar">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="16" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
+                                <path d="M8 2v4M16 2v4M3 10h18" stroke="#a78bfa" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="muted" style="display:flex;align-items:center;justify-content:space-between">
+                        <span class="req" id="lblEnd" data-i18n="end_dt">End date &amp; time</span>
+                        <span class="inline"><input id="winManualEnd" type="checkbox" style="margin:0"><span id="lblManual" data-i18n="set_manually">Set manually</span></span>
+                    </label>
+                    <div class="date-wrap">
+                        <input id="winEnd" class="inp" type="text" placeholder="YYYY-MM-DDTHH:mm" readonly disabled/>
+                        <button class="icon-btn" data-dtp="winEnd" aria-label="Open calendar" disabled>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <rect x="3" y="4" width="18" height="16" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
+                                <path d="M8 2v4M16 2v4M3 10h18" stroke="#a78bfa" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="req" id="lblDef" data-i18n="def_min">Defense minutes</label>
+                    <input id="winDef" class="inp" type="number" min="1" value="20"/>
+                </div>
+                <div class="col-4">
+                    <label class="req" id="lblBuf" data-i18n="buf_min">Buffer minutes</label>
+                    <input id="winBuf" class="inp" type="number" min="0" value="5"/>
+                </div>
+                <div class="col-4">
+                    <label class="req" id="lblCount" data-i18n="num_defenses">Number of defenses</label>
+                    <input id="winCount" class="inp" type="number" min="1" value="4"/>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <label class="muted" style="display:flex;align-items:center;gap:8px">
+                        <input id="winBreaksEnable" type="checkbox" style="margin:0">
+                        <span id="lblInsertBreaks" data-i18n="insert_breaks">Insert breaks</span>
+                    </label>
+                    <div class="row">
+                        <div class="col-6">
+                            <label id="lblHowManyBreaks" data-i18n="how_many_breaks">How many breaks</label>
+                            <input id="winBreaksCount" class="inp" type="number" min="1" value="1" disabled>
+                        </div>
+                        <div class="col-6">
+                            <label id="lblBreakMinutes" data-i18n="break_minutes">Break minutes</label>
+                            <input id="winBreakMinutes" class="inp" type="number" min="1" value="10" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="req" id="lblTitle" data-i18n="title_label">Title</label>
+                    <input id="winTitle" class="inp" placeholder="e.g., Window 12–16" data-i18n-placeholder="win_title_ph" required/>
+                    <div id="winErrors" class="muted" style="color:#fca5a5;margin-top:6px"></div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:8px">
+                <h4 style="margin:0 0 8px" data-i18n="preview">Preview</h4>
+                <div id="winPreview" class="muted"></div>
+            </div>
+
+            <div class="inline" style="margin-top:8px">
+                <button class="btn primary" onclick="createWindow(event)" id="btnCreateWindow" data-i18n="create_window_btn">Create window</button>
+                <div class="muted" id="winMsg"></div>
+            </div>
+        </div>
+
+        <div class="col-6 card">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+                <h3 data-i18n="windows">Windows</h3>
+                <div style="width:280px">
+                    <label data-i18n="search_windows">Search windows</label>
+                    <input id="windowsSearch" class="inp" placeholder="Search by title or No…" data-i18n-placeholder="search_title_or_no" oninput="renderWindows()">
+                </div>
+            </div>
+            <div class="table-scroll">
+                <table id="tblWindows"><thead>
+                <tr>
+                    <th data-i18n="th_no">No.</th>
+                    <th data-i18n="th_title">Title</th>
+                    <th data-i18n="th_start">Start</th>
+                    <th data-i18n="th_end">End</th>
+                    <th data-i18n="th_duration">Duration (defense+buffer)</th>
+                    <th data-i18n="th_actions">Actions</th>
+                </tr>
+                </thead><tbody></tbody></table>
+            </div>
+
+            <div id="editPanel" class="card panel-collapsible" aria-hidden="true">
+                <h3 class="panel-title"><span data-i18n="edit_window">Edit Window</span> <span class="muted" id="editMeta"></span></h3>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="req" data-i18n="start_dt">Start date &amp; time</label>
+                        <div class="date-wrap">
+                            <input id="ewinStart" class="inp" type="text" placeholder="YYYY-MM-DDTHH:mm" readonly/>
+                            <button class="icon-btn" data-dtp="ewinStart" aria-label="Open calendar">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="4" width="18" height="16" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
+                                    <path d="M8 2v4M16 2v4M3 10h18" stroke="#a78bfa" stroke-width="1.5"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="muted" style="display:flex;align-items:center;justify-content:space-between">
+                            <span class="req" data-i18n="end_dt">End date &amp; time</span>
+                            <span class="inline"><input id="ewinManualEnd" type="checkbox" style="margin:0"><span data-i18n="set_manually">Set manually</span></span>
+                        </label>
+                        <div class="date-wrap">
+                            <input id="ewinEnd" class="inp" type="text" placeholder="YYYY-MM-DDTHH:mm" readonly disabled/>
+                            <button class="icon-btn" data-dtp="ewinEnd" aria-label="Open calendar" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="4" width="18" height="16" rx="3" stroke="#a78bfa" stroke-width="1.5"/>
+                                    <path d="M8 2v4M16 2v4M3 10h18" stroke="#a78bfa" stroke-width="1.5"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4"><label class="req" data-i18n="def_min">Defense minutes</label><input id="ewinDef" class="inp" type="number" min="1"/></div>
+                    <div class="col-4"><label class="req" data-i18n="buf_min">Buffer minutes</label><input id="ewinBuf" class="inp" type="number" min="0"/></div>
+                    <div class="col-4"><label class="req" data-i18n="num_defenses">Number of defenses</label><input id="ewinCount" class="inp" type="number" min="1"/></div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="muted" style="display:flex;align-items:center;gap:8px">
+                            <input id="ewinBreaksEnable" type="checkbox" style="margin:0"><span data-i18n="insert_breaks">Insert breaks</span>
+                        </label>
+                        <div class="row">
+                            <div class="col-6"><label data-i18n="how_many_breaks">How many breaks</label><input id="ewinBreaksCount" class="inp" type="number" min="1" value="1" disabled></div>
+                            <div class="col-6"><label data-i18n="break_minutes">Break minutes</label><input id="ewinBreakMinutes" class="inp" type="number" min="1" value="10" disabled></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="req" data-i18n="title_label">Title</label>
+                        <input id="ewinTitle" class="inp" placeholder="Window title" data-i18n-placeholder="win_title2_ph" required/>
+                        <div id="ewinErrors" class="muted" style="color:#fca5a5;margin-top:6px"></div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:8px">
+                    <h4 style="margin:0 0 8px" data-i18n="preview">Preview</h4>
+                    <div id="ewinPreview" class="muted"></div>
+                </div>
+                <div class="inline" style="margin-top:8px">
+                    <button class="btn primary" onclick="updateWindow(event)" id="btnUpdateWindow" data-i18n="update_window_btn">Update window</button>
+                    <button class="btn ghost" onclick="cancelEdit(event)" id="btnCancelEdit" data-i18n="cancel">Cancel</button>
+                    <div class="muted" id="ewinMsg"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Offers -->
+    <div class="card">
+        <div class="offers-scroll-header">
+            <div class="offers-scroll-title">
+                <h3 style="margin:0 0 4px; color:var(--ink); font-weight:600" data-i18n="all_offers_scroll">All Offers</h3>
+                <span class="muted" style="font-size:13px">Scroll to view all offers across windows</span>
+            </div>
+            <div class="offers-scroll-search">
+                <label data-i18n="search_all_offers" style="font-size:13px; color:var(--muted); margin-bottom:4px; display:block">Search offers</label>
+                <input id="winOffersSearch" class="inp" placeholder="Search by professor or window…" data-i18n-placeholder="search_prof_or_win" oninput="renderWindowsOffersScroll()" style="font-size:14px; padding:10px 14px;">
+            </div>
+        </div>
+        <div class="scrollbox offers-scroll-container" style="max-height:400px; border:1px solid var(--line-2); border-radius:14px; background:rgba(15,23,42,0.3);">
+            <div id="winOffersList" class="offers-list-content"></div>
+        </div>
+    </div>
+
+    <!-- Offer Window and Offers Side by Side -->
+    <div class="row">
+        <!-- Offer Window -->
+        <div class="col-6 card">
+            <h3 data-i18n="offer_window_to_prof">Offer Window to Professor</h3>
+            
+            <!-- Window Selection -->
+            <div style="margin-bottom: 16px;">
+                <label class="req" data-i18n="window">Window</label>
+                <select id="offerWindow" class="sel" onchange="onWindowSelected()"></select>
+            </div>
+            
+            <!-- Professor Selection -->
+            <div style="margin-bottom: 16px;">
+                <label data-i18n="professors">Professor(s)</label>
+                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                    <input id="offerProfessorFilter" class="inp" placeholder="Search by name or ID…" style="flex: 1;" data-i18n-placeholder="search_name_or_id">
+                    <button class="btn ghost" onclick="offerSelectAllVisible(event)" id="btnSelectAll" data-i18n="select_all">Select all</button>
+                    <button class="btn ghost" onclick="offerClear(event)" id="btnClear" data-i18n="clear">Clear</button>
+                </div>
+                <div class="scrollbox" style="max-height: 200px; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; background: rgba(15,23,42,0.2);">
+                    <div id="offerProfessorChecks" class="check-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; padding: 12px;"></div>
+                </div>
+            </div>
+            
+            <!-- Slot Selection Container -->
+            <div id="professorSlotSelections" class="slot-selections-container" style="display:none; margin-bottom: 16px;">
+                <h4 style="margin:0 0 12px; color:var(--ink); font-size:14px; font-weight:600">
+                    <span data-i18n="SLOT_ASSIGNMENT">Slot Assignment</span>
+                    <span class="muted" style="font-weight:400; margin-left:8px">(Select slots for each professor)</span>
+                    <button class="mini" onclick="loadAllPreviousAssignments()" style="margin-left:auto;" title="Load previous assignments for all selected professors">Load Previous</button>
+                </h4>
+                <!-- Slot selections will be dynamically added here -->
+            </div>
+            
+            <!-- Comment Section -->
+            <div style="margin-bottom: 16px;">
+                <label data-i18n="comment">Comment</label>
+                <input id="offerComment" class="inp" placeholder="Notes to professor" data-i18n-placeholder="notes_to_prof"/>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="inline" style="margin-top: 8px;">
+                <button class="btn primary" onclick="offerWindow(event)" id="btnSendOffer" data-i18n="send_offer">Send offer</button>
+                <div class="muted" id="offerMsg"></div>
+            </div>
+        </div>
+
+        <!-- Offers -->
+        <div class="col-6 card">
+            <h3 class="panel-title" style="margin-bottom:10px">
+                <span data-i18n="offers">Offers</span>
+                <span class="inline" id="offerFilterBtns">
+            <button class="mini active" onclick="setOffersFilter('all', this)" id="filterAll" data-i18n="filter_all">All</button>
+            <button class="mini" onclick="setOffersFilter('pending', this)" id="filterPending" data-i18n="filter_pending">Pending</button>
+            <button class="mini" onclick="setOffersFilter('accepted', this)" id="filterAccepted" data-i18n="filter_accepted">Accepted</button>
+            <button class="mini" onclick="setOffersFilter('rejected', this)" id="filterRejected" data-i18n="filter_rejected">Declined</button>
+            <button class="mini" onclick="setOffersFilter('change_requested', this)" id="filterChangeReq" data-i18n="filter_change_requested">Request to change</button>
+          </span>
+            </h3>
+
+            <!-- NEW: search bar for Offers -->
+            <div class="inline" style="margin-bottom:6px; align-items:flex-end">
+                <div style="width:280px">
+                    <label data-i18n="search_offers">Search offers</label>
+                    <input id="offersSearch" class="inp" placeholder="Search by professor, window or ID…" data-i18n-placeholder="search_prof_win_or_id" oninput="renderOffers()">
+                </div>
+            </div>
+
+            <div id="offersContainer" class="offers-container">
+                <!-- Offers will be dynamically rendered here as collapsible sections -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Users -->
+    <div class="card">
+        <h3 class="panel-title">
+            <span data-i18n="users">Users</span>
+            <span class="inline">
+        <span id="usersMeta" class="muted"></span>
+        <button id="btnUsersCollapse" class="mini" onclick="toggleUsersCollapse(event)" data-i18n="show_all">Show all</button>
+        <button id="btnUsersSection" class="mini" onclick="toggleUsersSection(event)" data-i18n="collapse">Collapse</button>
+      </span>
+        </h3>
+
+        <div id="usersBody">
+            <div class="inline" style="margin-bottom:4px; align-items:flex-end">
+                <div style="width:280px">
+                    <label data-i18n="search_users">Search users</label>
+                    <input id="userSearch" class="inp" placeholder="Search by name or ID…" data-i18n-placeholder="search_name_or_id" oninput="renderUsersTable()">
+                </div>
+                <div style="width:280px">
+                    <label data-i18n="new_user_name">Name of the user</label>
+                    <input id="newUserName" class="inp" placeholder="Full name" data-i18n-placeholder="full_name">
+                </div>
+                <div style="width:180px">
+                    <label data-i18n="select_role">Select role</label>
+                    <select id="newUserRole" class="sel" disabled>
+                        <option value="professor" selected>professor</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="visibility:hidden" data-i18n="create">Create</label>
+                    <button class="btn primary" onclick="createUser(event)" id="btnCreateUser" data-i18n="create">Create</button>
+                </div>
+            </div>
+            <div id="newUserMsg" class="muted" style="margin-bottom:8px"></div>
+
+            <div class="table-scroll">
+                <table id="tblUsers"><thead>
+                <tr>
+                    <th data-i18n="th_no">No.</th>
+                    <th data-i18n="th_name">Name</th>
+                    <th data-i18n="th_role">Role</th>
+                    <th data-i18n="th_active">Active</th>
+                    <th data-i18n="th_actions">Actions</th>
+                </tr>
+                </thead><tbody></tbody></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<div id="welcome" class="welcome" aria-hidden="true">
+    <div class="welcome-card">
+        <p class="welcome-title" id="wSmall" data-i18n="welcome_small">Hello</p>
+        <p class="welcome-big" id="wBig" data-i18n="welcome_big">Welcome to the Scheduler Dashboard, Assistant</p>
+        <p class="welcome-sub" id="wSub" data-i18n="welcome_sub">Loading your tools<span class="pulse-dot"></span></p>
+    </div>
+</div>
+
+<!-- Themed Modal (alert/confirm replacement) -->
+<div id="modal" class="modal" aria-hidden="true" data-mode="alert">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMsg">
+        <div class="modal-ornament"></div>
+        <svg class="modal-ring" viewBox="0 0 120 120">
+            <defs>
+                <linearGradient id="ringGrad" x1="0" x2="1" y1="0" y2="1">
+                    <stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#f472b6"/>
+                </linearGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="none" stroke="url(#ringGrad)" stroke-width="6" stroke-linecap="round" stroke-dasharray="12 10"/>
+        </svg>
+        <h3 id="modalTitle" class="modal-title">Message</h3>
+        <div id="modalMsg" class="modal-msg">…</div>
+        <div class="modal-actions">
+            <button id="modalCancel" class="btn ghost" data-i18n="cancel">Cancel</button>
+            <button id="modalOk" class="btn primary">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Tooltip root -->
+<div id="tip" class="tip" role="status"></div>
+
+<script src="assistant.js"></script>
+</body>
+</html>

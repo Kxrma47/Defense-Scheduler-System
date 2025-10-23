@@ -1,0 +1,465 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Manager Console v2.4</title>
+    <link rel="stylesheet" href="Manager.css">
+
+</head>
+<html lang="en" data-theme="dark">
+<body>
+<div class="gridfx"></div>
+<div class="wrap">
+    <div class="bar">
+        <div><h1 class="title" id="title">Manager Console</h1><div class="sub" id="me"></div></div>
+        <div class="controls">
+            <div class="inline" aria-label="Language"><button id="btnLangEn" class="mini" onclick="setLang('en')">EN</button><button id="btnLangRu" class="mini" onclick="setLang('ru')">RU</button></div>
+            <button class="btn ghost" data-i18n="BTN_BACK" onclick="logout(event)">← Back to login</button>
+        </div>
+    </div>
+    <div class="card">
+        <h2 style="margin:0 0 8px" data-i18n="INSIGHTS_TITLE">Insights</h2>
+        <div class="kpi-grid" style="margin-bottom:8px">
+            <div class="kpi"><h4 data-i18n="KPI_USERS">Total Users</h4><div class="num" id="kpiUsers">–</div><div class="sub muted" id="kpiUsersSub"></div></div>
+            <div class="kpi"><h4 data-i18n="KPI_PROFS">Professors</h4><div class="num" id="kpiProfs">–</div><div class="sub muted" id="kpiProfsSub"></div></div>
+            <div class="kpi"><h4 data-i18n="KPI_WINS">Windows</h4><div class="num" id="kpiWins">–</div><div class="sub muted" id="kpiWinsSub"></div></div>
+            <div class="kpi"><h4 data-i18n="KPI_OFFERS">Offers</h4><div class="num" id="kpiOffers">–</div><div class="sub muted" id="kpiOffersSub"></div></div>
+        </div>
+        <div class="charts" style="display:grid;grid-template-columns:0.7fr 1.2fr 1.1fr;gap:8px;">
+            <div class="card chart-card" style="padding:4px;"><h3 style="margin:2px 0 4px;font-size:14px;" data-i18n="OFFER_STATUS">Offer Status</h3><canvas id="chartDonut" aria-label="Offer status distribution" role="img" style="width:100%;height:70%;"></canvas></div>
+            <div class="card chart-card" style="padding:8px;">
+                <h3 style="margin:2px 0 6px;font-size:14px;" data-i18n="PROF_OVERVIEW">Professor Overview</h3>
+                <div class="visual-grid">
+                    <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+                        <input id="profOverviewSearch" class="inp" placeholder="Search professors..." style="margin-bottom:8px;width:100%;font-size:12px;" oninput="filterProfessorOverview(this.value)">
+                        <div class="muted" style="margin-bottom:4px;font-size:11px;" data-i18n="CLICK_TO_FOCUS">Click a name to focus.</div>
+                        <div id="profList" class="prof-list"></div>
+                    </div>
+                    <div><div class="svgwrap"><div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px 0 8px"><h3 id="topoTitle" style="margin:0;font-size:13px;">Topology · pick a professor</h3><span class="muted" id="topoMeta" style="font-size:11px;"></span></div><svg id="topology" width="100%" height="460" viewBox="0 0 900 460" preserveAspectRatio="xMidYMid meet"></svg></div></div>
+        </div>
+    </div>
+            <div class="card chart-card" style="padding:8px;"><h3 style="margin:2px 0 6px;font-size:14px;" data-i18n="PROFS_PER_OFFER">Professors per Offer</h3><div class="muted" id="chartSub" style="margin:0 0 4px;font-size:11px;">All windows by professor count</div><input id="windowSearch" class="inp" placeholder="Search window name..." style="margin-bottom:8px;width:100%;font-size:12px;" oninput="filterWindows(this.value)"><div class="chart-scroll-container" style="max-height:500px;"><canvas id="chartSpark" aria-label="Professors per window" role="img" style="width:100%;height:auto;"></canvas></div></div>
+        </div>
+    </div>
+    
+    <!-- Non-Voting Professors Container -->
+    <div class="card">
+        <h3 class="panel-title">
+            <span>Non-Voting Professors</span>
+            <span class="inline">
+                <button id="btnNonVotingSection" class="mini" onclick="toggleNonVotingSection()">Collapse</button>
+            </span>
+        </h3>
+        <div id="nonVotingBody">
+            <div class="non-voting-container">
+                <div class="non-voting-list" id="nonVotingList" style="flex: 2;"></div>
+                <div class="non-voting-chart" style="flex: 1; min-width: 300px;">
+                    <canvas id="nonVotingChart" title="Non-voting professors by poll" style="height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Row 1: Creation Forms -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;">
+    <div class="card">
+        <div class="poll-head">
+            <h3 data-i18n="CREATE_POLL">Create Poll</h3>
+            <span class="muted" id="pollCreateMsg"></span>
+        </div>
+        <div class="poll-grid">
+            <div>
+                <label class="req" data-i18n="POLL_TITLE">Title</label>
+                <input id="pollTitle" class="inp" data-i18n-placeholder="PH_POLL_TITLE" placeholder="Type your question here" style="margin-bottom:12px">
+                <label data-i18n="POLL_DESC">Description</label>
+                <textarea id="pollDesc" class="inp" rows="3" placeholder="" style="margin-bottom:16px"></textarea>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:16px">
+                    <div>
+                <label data-i18n="POLL_TYPE">Poll type</label>
+                        <select id="pollType" class="sel" style="width:100%">
+                    <option value="single" data-i18n="POLL_TYPE_SINGLE">Single choice</option>
+                    <option value="multiple" data-i18n="POLL_TYPE_MULT">Multiple choice</option>
+                </select>
+                    </div>
+                    <div>
+                        <label>Poll mode</label>
+                        <select id="pollMode" class="sel" onchange="pollModeChanged()" style="width:100%">
+                    <option value="text">Text options</option>
+                    <option value="time">Time slots</option>
+                        <option value="custom_timeslot">Custom Timeslot</option>
+                </select>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div id="pollAnswerText">
+                    <label data-i18n="ANSWER_OPTIONS">Answer Options</label>
+                    <div id="pollOptionsBox" style="margin-bottom:12px">
+                        <div class="poll-opt" style="margin-bottom:8px"><input class="inp poll-opt-input" placeholder="Option 1"><button class="mini danger" onclick="removePollOption(this)">×</button></div>
+                        <div class="poll-opt" style="margin-bottom:8px"><input class="inp poll-opt-input" placeholder="Option 2"><button class="mini danger" onclick="removePollOption(this)">×</button></div>
+                    </div>
+                    <div class="inline" style="margin-bottom:16px">
+                        <button class="mini" onclick="addPollOption()" data-i18n="BTN_ADD_OPTION">Add option</button>
+                    </div>
+                    <div class="muted" style="margin-bottom:8px" data-i18n="VOTING_SECURITY">Voting security</div>
+                    <div class="meta-row" style="margin-bottom:20px"><span class="meta-chip" id="pollSecurityNote" data-i18n="ONE_VOTE_USER">One vote per user</span></div>
+                </div>
+                <div id="pollAnswerTime" style="display:none">
+                    <label style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--ink);">Time-slot settings</label>
+                    
+                    <!-- Date & Time Section -->
+                    <div style="margin-bottom: 20px;">
+                        <div class="row" style="margin-bottom: 16px;">
+                        <div class="col-6">
+                            <label class="req">Start date &amp; time</label>
+                            <div class="input-wrap">
+                                <input id="ptStart" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                                <button type="button" class="calbtn" data-for="ptStart" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                                <label class="req">End date &amp; time</label>
+                            <div class="input-wrap">
+                                <input id="ptEnd" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM" disabled/>
+                                <button type="button" class="calbtn" data-for="ptEnd" disabled aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                            </div>
+                        </div>
+                    </div>
+                        <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                            <input id="ptManualEnd" type="checkbox" style="margin: 0;">
+                            <span style="color: var(--muted); font-size: 13px;">Set end time manually</span>
+                    </div>
+                    </div>
+                    
+                    <!-- Defense Settings Section -->
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--ink);">Defense Settings</label>
+                    <div class="row">
+                            <div class="col-4">
+                                <label class="req">Defense minutes</label>
+                                <input id="ptDef" class="inp" type="number" min="1" value="20"/>
+                            </div>
+                            <div class="col-4">
+                                <label class="req">Buffer minutes</label>
+                                <input id="ptBuf" class="inp" type="number" min="0" value="5"/>
+                        </div>
+                            <div class="col-4">
+                                <label class="req">Number of defenses</label>
+                                <input id="ptCount" class="inp" type="number" min="1" value="4"/>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Breaks Section -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <input id="ptBreaksEnable" type="checkbox" style="margin: 0;">
+                            <span style="color: var(--ink); font-weight: 600;">Insert breaks</span>
+                        </div>
+                        <div class="row" style="margin-bottom: 16px;">
+                        <div class="col-6">
+                                <label>How many breaks</label>
+                                <input id="ptBreaksCount" class="inp" type="number" min="1" value="1" disabled>
+                            </div>
+                            <div class="col-6">
+                                <label>Break minutes</label>
+                                <input id="ptBreakMinutes" class="inp" type="number" min="1" value="10" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Note Section -->
+                    <div style="margin-bottom: 20px;">
+                            <label>Note (optional)</label>
+                            <input id="ptNote" class="inp" placeholder="e.g., Room 201 or Zoom"/>
+                        </div>
+                    
+                    <!-- Preview Section -->
+                    <div class="card" style="margin-top: 16px;">
+                        <h4 style="margin: 0 0 12px; color: var(--ink);">Preview</h4>
+                        <div id="ptPreview" class="muted"></div>
+                    </div>
+                </div>
+                    <div id="pollAnswerCustomTimeslot" style="display:none">
+                        <div style="margin-bottom:16px">
+                            <h4 style="margin:0 0 8px;color:var(--ink);font-size:16px;font-weight:600">Custom Timeslot Options</h4>
+                            <p style="margin:0;color:var(--muted);font-size:13px">Define specific time ranges for voting. Each option represents a start and end time.</p>
+                        </div>
+                        <div id="customTimeslotOptionsBox">
+                            <div class="custom-timeslot-opt">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="req">Start date &amp; time</label>
+                                        <div class="input-wrap">
+                                            <input id="custom-start-init-1" class="inp dtp-input custom-start" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                                            <button type="button" class="calbtn" data-for="custom-start-init-1" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="req">End date &amp; time</label>
+                                        <div class="input-wrap">
+                                            <input id="custom-end-init-1" class="inp dtp-input custom-end" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                                            <button type="button" class="calbtn" data-for="custom-end-init-1" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mini danger" onclick="removeCustomTimeslotOption(this)" title="Remove this timeslot">×</button>
+                            </div>
+                            <div class="custom-timeslot-opt">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label class="req">Start date &amp; time</label>
+                                        <div class="input-wrap">
+                                            <input id="custom-start-init-2" class="inp dtp-input custom-start" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                                            <button type="button" class="calbtn" data-for="custom-start-init-2" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="req">End date &amp; time</label>
+                                        <div class="input-wrap">
+                                            <input id="custom-end-init-2" class="inp dtp-input custom-end" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                                            <button type="button" class="calbtn" data-for="custom-end-init-2" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="mini danger" onclick="removeCustomTimeslotOption(this)">×</button>
+                            </div>
+                        </div>
+                        <div class="inline" style="margin-top:16px">
+                            <button class="btn primary" onclick="addCustomTimeslotOption()" data-i18n="BTN_ADD_OPTION" style="padding:10px 16px;font-size:14px;font-weight:600">
+                                <svg style="width:16px;height:16px;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                Add timeslot
+                            </button>
+                        </div>
+                        <div style="margin-top:20px;padding:12px;background:var(--card-soft);border:1px solid var(--line-2);border-radius:8px">
+                            <div class="muted" style="margin-bottom:6px;font-size:12px;font-weight:600" data-i18n="VOTING_SECURITY">Voting security</div>
+                            <div class="meta-row"><span class="meta-chip" id="pollSecurityNote" data-i18n="ONE_VOTE_USER">One vote per user</span></div>
+                        </div>
+                </div>
+                <div class="inline" style="margin-top:auto; padding-top:20px">
+                    <button class="btn primary" onclick="createPoll(event)" data-i18n="BTN_CREATE_POLL">Create poll</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="card">
+            <h3 data-i18n="CREATE_WINDOW">Create Window</h3>
+        <div style="margin-bottom:16px">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px">
+                <div>
+                    <label class="req" data-i18n="LBL_START">Start date &amp; time</label>
+                    <div class="input-wrap">
+                        <input id="winStart" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/>
+                        <button type="button" class="calbtn" data-for="winStart" aria-label="Open calendar">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="muted" style="display:flex;align-items:center;justify-content:space-between"><span class="req" data-i18n="LBL_END">End date &amp; time</span><span class="inline"><input id="winManualEnd" type="checkbox" style="margin:0"><span data-i18n="LBL_SET_MANUAL">Set manually</span></span></label>
+                    <div class="input-wrap">
+                        <input id="winEnd" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM" disabled/>
+                        <button type="button" class="calbtn" data-for="winEnd" disabled aria-label="Open calendar">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px">
+                <div><label class="req" data-i18n="LBL_DEF_MIN">Defense minutes</label><input id="winDef" class="inp" type="number" min="1" value="20"/></div>
+                <div><label class="req" data-i18n="LBL_BUF_MIN">Buffer minutes</label><input id="winBuf" class="inp" type="number" min="0" value="5"/></div>
+                <div><label class="req" data-i18n="LBL_NUM_DEF">Number of defenses</label><input id="winCount" class="inp" type="number" min="1" value="4"/></div>
+            </div>
+        </div>
+        <div class="row" style="margin-bottom:16px">
+                <div class="col-6">
+                <label class="muted" style="display:flex;align-items:center;gap:8px; margin-bottom:8px"><input id="winBreaksEnable" type="checkbox" style="margin:0"><span data-i18n="LBL_INSERT_BREAKS">Insert breaks</span></label>
+                    <div class="row">
+                        <div class="col-6"><label data-i18n="LBL_BREAKS_COUNT">How many breaks</label><input id="winBreaksCount" class="inp" type="number" min="1" value="1" disabled></div>
+                        <div class="col-6"><label data-i18n="LBL_BREAK_MIN">Break minutes</label><input id="winBreakMinutes" class="inp" type="number" min="1" value="10" disabled></div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <label class="req" data-i18n="LBL_TITLE">Title</label>
+                    <input id="winTitle" class="inp" placeholder="e.g., Window 12–16" data-i18n-placeholder="PH_WIN_TITLE" required/>
+                    <div id="winErrors" class="muted" style="color:#fca5a5;margin-top:6px"></div>
+                </div>
+            </div>
+        <div class="card" style="margin-bottom:16px"><h4 style="margin:0 0 8px" data-i18n="LBL_PREVIEW">Preview</h4><div id="winPreview" class="muted"></div></div>
+        <div class="inline" style="margin-top:auto; padding-top:20px"><button class="btn primary" data-i18n="BTN_CREATE_WINDOW" onclick="createWindow(event)">Create window</button><div class="muted" id="winMsg"></div></div>
+    </div>
+    
+    <div class="card">
+        <h3 data-i18n="OFFER_WINDOW_TO_PROF">Offer Window to Professor</h3>
+        
+        <div style="margin-bottom:16px">
+            <label class="req" data-i18n="LBL_WINDOW">Window</label>
+            <select id="offerWindow" class="sel" style="width:100%" onchange="onWindowSelected()">
+                <option value="">Select a window…</option>
+            </select>
+        </div>
+        
+        <div style="margin-bottom:16px">
+            <label class="req" data-i18n="LBL_PROFS">Professor(s)</label>
+            <input id="offerProfessorFilter" class="inp" data-i18n-placeholder="PLACEHOLDER_PROF_SEARCH" placeholder="Search by name or ID…" style="width:100%; margin-bottom:8px">
+            <div class="scrollbox" style="max-height:200px; border-radius:6px">
+                <div id="offerProfessorChecks" class="check-grid matrix4x4"></div>
+            </div>
+            <div style="margin-top:8px">
+                <button class="mini" onclick="offerSelectAllVisible(event)">Select all</button>
+                <button class="mini" onclick="offerClear(event)">Clear all</button>
+            </div>
+        </div>
+        
+        <!-- Slot Selection Container -->
+        <div id="professorSlotSelections" class="slot-selections-container" style="display:none;">
+            <h4 style="margin:0 0 12px; color:var(--ink); font-size:14px; font-weight:600">
+                <span data-i18n="SLOT_ASSIGNMENT">Slot Assignment</span>
+                <span class="muted" style="font-weight:400; margin-left:8px">(Select slots for each professor)</span>
+                <button class="mini" onclick="loadAllPreviousAssignments()" style="margin-left:auto;" title="Load previous assignments for all selected professors">Load Previous</button>
+            </h4>
+            <!-- Slot selections will be dynamically added here -->
+        </div>
+        
+        <div style="margin-bottom:20px">
+            <label data-i18n="LBL_COMMENT">Comment (optional)</label>
+            <textarea id="offerComment" class="inp" placeholder="Add a message for the professor(s)…" data-i18n-placeholder="PH_OFFER_COMMENT" style="width:100%; height:80px; resize:none; font-size:12px; padding:8px"></textarea>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:12px; margin-top:auto; padding-top:20px">
+            <button class="btn primary" data-i18n="BTN_SEND_OFFER" onclick="offerWindow(event)">Send offer</button>
+            <div class="muted" id="offerMsg" style="font-size:12px"></div>
+        </div>
+    </div>
+    </div>
+
+
+    </div>
+    <!-- Row 2: Poll Results and Windows -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+            <div class="card">
+        <h3 class="panel-title" style="margin-bottom:12px"><span data-i18n="POLL_RESULTS">Poll results</span>
+            <span class="inline" style="width:100%">
+                <input id="pollSearch" class="inp" data-i18n-placeholder="PH_SEARCH_POLLS" placeholder="Search polls…" oninput="renderPolls()" style="width:100%">
+            </span>
+        </h3>
+        <div class="inline" style="margin:6px 0 10px; display:flex; gap:8px; align-items:center;">
+            <button id="exportAllBtn" class="btn primary" onclick="exportAllPolls()">📊 Export All</button>
+            <button id="exportSelectedBtn" class="btn" onclick="exportSelectedPolls()" disabled>📊 Export Selected (0)</button>
+            <button class="btn ghost" onclick="selectAllPolls()">Select All</button>
+            <button class="btn ghost" onclick="deselectAllPolls()">Deselect All</button>
+        </div>
+        <div id="pollList" class="poll-list" style="max-height:1067px"></div>
+        <div id="pollVotersPanel" class="poll-table" style="display:none; margin-top:8px"></div>
+        </div>
+        
+        <div class="card">
+            <h3 data-i18n="WINDOWS">Windows</h3>
+                    <div class="inline" style="margin:4px 0 6px; width:100%"><input id="winSearch" class="inp" placeholder="Search by No. or Title…" data-i18n-placeholder="PH_SEARCH_WINDOWS" oninput="renderWindows()" style="width:100%"></div>
+        <div class="table-scroll" style="max-height:400px"><table id="tblWindows" style="width:100%"><thead><tr><th style="width:50px" data-i18n="TH_NO">No.</th><th style="width:25%" data-i18n="TH_TITLE">Title</th><th style="width:20%" data-i18n="TH_START">Start</th><th style="width:20%" data-i18n="TH_END">End</th><th style="width:20%" data-i18n="TH_DURATION">Duration</th><th style="width:15%" data-i18n="TH_ACTIONS">Actions</th></tr></thead><tbody></tbody></table></div>
+            <div id="editPanel" class="card panel-collapsible" aria-hidden="true">
+                <h3 class="panel-title"><span data-i18n="EDIT_WINDOW">Edit Window</span> <span class="muted" id="editMeta"></span></h3>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="req" data-i18n="LBL_START">Start date &amp; time</label>
+                        <div class="input-wrap"><input id="ewinStart" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM"/><button class="calbtn" data-for="ewinStart" aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="muted" style="display:flex;align-items:center;justify-content:space-between"><span class="req" data-i18n="LBL_END">End date &amp; time</span><span class="inline"><input id="ewinManualEnd" type="checkbox" style="margin:0"><span data-i18n="LBL_SET_MANUAL">Set manually</span></span></label>
+                        <div class="input-wrap"><input id="ewinEnd" class="inp dtp-input" type="text" inputmode="none" placeholder="YYYY-MM-DDTHH:MM" disabled/><button class="calbtn" data-for="ewinEnd" disabled aria-label="Open calendar"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4"><label class="req" data-i18n="LBL_DEF_MIN">Defense minutes</label><input id="ewinDef" class="inp" type="number" min="1"/></div>
+                    <div class="col-4"><label class="req" data-i18n="LBL_BUF_MIN">Buffer minutes</label><input id="ewinBuf" class="inp" type="number" min="0"/></div>
+                    <div class="col-4"><label class="req" data-i18n="LBL_NUM_DEF">Number of defenses</label><input id="ewinCount" class="inp" type="number" min="1"/></div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <label class="muted" style="display:flex;align-items:center;gap:8px"><input id="ewinBreaksEnable" type="checkbox" style="margin:0"><span data-i18n="LBL_INSERT_BREAKS">Insert breaks</span></label>
+                        <div class="row">
+                            <div class="col-6"><label data-i18n="LBL_BREAKS_COUNT">How many breaks</label><input id="ewinBreaksCount" class="inp" type="number" min="1" value="1" disabled></div>
+                            <div class="col-6"><label data-i18n="LBL_BREAK_MIN">Break minutes</label><input id="ewinBreakMinutes" class="inp" type="number" min="1" value="10" disabled></div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="req" data-i18n="LBL_TITLE">Title</label>
+                        <input id="ewinTitle" class="inp" data-i18n-placeholder="PH_WIN_EDIT_TITLE" placeholder="Window title" required/>
+                        <div id="ewinErrors" class="muted" style="color:#fca5a5;margin-top:6px"></div>
+                    </div>
+                </div>
+                <div class="card" style="margin-top:8px"><h4 style="margin:0 0 8px" data-i18n="LBL_PREVIEW">Preview</h4><div id="ewinPreview" class="muted"></div></div>
+                <div class="inline" style="margin-top:8px"><button class="btn primary" data-i18n="BTN_UPDATE_WINDOW" onclick="updateWindow(event)">Update window</button><button class="btn ghost" data-i18n="BTN_CANCEL" onclick="cancelEdit(event)">Cancel</button><div class="muted" id="ewinMsg"></div></div>
+            </div>
+            <div class="card" style="margin-top:10px">
+                <h4 style="margin:0 0 8px" data-i18n="ALL_OFFERS_SCROLL">All Offers (scroll)</h4>
+                <div class="inline" style="margin:4px 0 8px; width:100%"><input id="winOffersSearch" class="inp" placeholder="Search by window or professor…" data-i18n-placeholder="PLACEHOLDER_SEARCH_ALL_OFFERS" oninput="renderWindowsOffersScroll()"></div>
+                <div class="scrollbox" style="max-height:420px"><div id="winOffersList"></div></div>
+            </div>
+        </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- Row 2: Offers and Users -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px;">
+    <div class="card">
+        <h3 class="panel-title" style="margin-bottom:10px"><span data-i18n="OFFERS">Offers</span><span class="inline" id="offerFilterBtns"><button class="mini active" data-i18n="FILTER_ALL" onclick="setOffersFilter('all', this)">All</button><button class="mini" data-i18n="FILTER_ACCEPTED" onclick="setOffersFilter('accepted', this)">Accepted</button><button class="mini" data-i18n="FILTER_PENDING" onclick="setOffersFilter('pending', this)">Pending</button><button class="mini" data-i18n="FILTER_REQUEST_CHANGE" onclick="setOffersFilter('request_change', this)">Request Change</button><button class="mini" data-i18n="FILTER_REJECTED" onclick="setOffersFilter('rejected', this)">Rejected</button></span></h3>
+        <div class="inline" style="margin:6px 0 10px; width:100%"><input id="offerSearch" class="inp" placeholder="Search by window, professor, comment…" data-i18n-placeholder="PLACEHOLDER_SEARCH_OFFERS" oninput="renderOffers()"></div>
+        <div class="offers-scroll"><table id="tblOffers"><thead><tr><th style="width:56px" data-i18n="TH_NO">No.</th><th data-i18n="TH_WINDOW">Window</th><th data-i18n="TH_OFFERS">Offers</th></tr></thead><tbody></tbody></table></div>
+    </div>
+        
+    <div class="card">
+        <h3 class="panel-title"><span data-i18n="USERS">Users</span><span class="inline"><span id="usersMeta" class="muted"></span><button id="btnUsersCollapse" class="mini" data-i18n="BTN_SHOW_ALL" onclick="toggleUsersCollapse(event)">Show all</button><button id="btnUsersSection" class="mini" data-i18n="BTN_COLLAPSE" onclick="toggleUsersSection(event)">Collapse</button></span></h3>
+        <div id="usersBody">
+            <div style="display:grid; grid-template-columns: 1fr 1fr 100px auto; gap:8px; margin-bottom:6px; align-items:end">
+                <div>
+                    <label data-i18n="LBL_SEARCH_USERS">Search users</label>
+                    <input id="userSearch" class="inp" data-i18n-placeholder="PLACEHOLDER_SEARCH_USERS" placeholder="Search by name or ID…" oninput="renderUsersTable()" style="width:100%">
+            </div>
+                <div>
+                    <label data-i18n="LBL_NEW_USER_NAME">Name of the user</label>
+                    <input id="newUserName" class="inp" data-i18n-placeholder="PLACEHOLDER_FULL_NAME" placeholder="Full name" style="width:100%">
+            </div>
+                <div>
+                    <label data-i18n="LBL_SELECT_ROLE">Select role</label>
+                    <select id="newUserRole" class="sel" style="width:100%">
+                        <option value="professor">professor</option>
+                        <option value="assistant">assistant</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="visibility:hidden">Create</label>
+                    <button class="btn primary" data-i18n="BTN_CREATE_USER" onclick="createUser(event)">Create</button>
+                </div>
+            </div>
+            <div id="newUserMsg" class="muted" style="margin-bottom:6px; font-size:11px"></div>
+            <div class="users-table-scroll" style="max-height:1200px">
+                <table id="tblUsers" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th style="width:60px" data-i18n="TH_NO">No.</th>
+                            <th style="width:40%" data-i18n="TH_NAME">Name</th>
+                            <th style="width:15%" data-i18n="TH_ROLE">Role</th>
+                            <th style="width:15%" data-i18n="TH_ACTIVE">Active</th>
+                            <th style="width:30%" data-i18n="TH_ACTIONS">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+<div id="tip" class="tip" role="status"></div>
+<div class="toasts" id="toasts"></div>
+<div id="welcome" class="welcome" aria-hidden="true"><div class="welcome-card"><p class="welcome-title" id="wSmall">Welcome</p><p class="welcome-big" id="wBig">Welcome to the Scheduler Dashboard, Manager</p><p class="welcome-sub" id="wSub">Loading resources<span class="pulse-dot"></span></p></div></div>
+<div id="dialogRoot" class="modal" aria-hidden="true" role="dialog"></div>
+
+<script src="Manager.js"></script>
+</body>
+</html>

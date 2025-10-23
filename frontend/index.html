@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Defense Scheduler · Login</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+<div class="ambient"></div>
+<div class="gridfx"></div>
+
+<div class="wrap">
+    <div class="card">
+        <div class="topbar">
+            <h1 class="title" id="t_title" data-i18n="title_app">Defense Scheduler</h1>
+            <div class="lang" role="tablist" aria-label="Language">
+                <button id="lang_en" class="active" data-lang="en" aria-selected="true">EN</button>
+                <button id="lang_ru" data-lang="ru" aria-selected="false">RU</button>
+            </div>
+        </div>
+        <div class="muted" id="t_subtitle" data-i18n="subtitle" style="margin-bottom:10px">Paste your token, then choose a console.</div>
+
+        <div class="inpwrap">
+            <input id="token" class="inp" placeholder="Paste your auth token" autocomplete="off" spellcheck="false"/>
+            <div id="toggleEye" class="eye" title="Show/Hide"><span id="eyeText" data-i18n="show">Show</span></div>
+        </div>
+
+        <div id="msg" class="muted" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin:0 0 6px" id="t_consoles" data-i18n="consoles">Consoles</h3>
+        <div class="muted" id="t_consoles_tip" data-i18n-html="consoles_tip">Access is strictly role-gated. Tip: press <b>1</b>, <b>2</b>, or <b>3</b> to quick-launch a console.</div>
+
+        <div id="tiles" class="grid-tiles" style="margin-top:12px">
+            <div class="tile" data-i="0" data-role="manager"  data-accent="#06b6d4" onclick="go(event,'manager.html','manager')">
+                <h3 id="t_mgr_title" data-i18n="manager_tile_title">Manager Console</h3>
+                <div class="muted" id="t_mgr_desc" data-i18n="manager_tile_desc">Full control over windows, offers &amp; users.</div>
+            </div>
+            <div class="tile" data-i="1" data-role="assistant" data-accent="#3b82f6" onclick="go(event,'assistant.html','assistant')">
+                <h3 id="t_asst_title" data-i18n="assistant_tile_title">Assistant Console</h3>
+                <div class="muted" id="t_asst_desc" data-i18n="assistant_tile_desc">Almost everything; limited user controls.</div>
+            </div>
+            <div class="tile" data-i="2" data-role="professor" data-accent="#f59e0b" onclick="go(event,'professor.html','professor')">
+                <h3 id="t_prof_title" data-i18n="prof_tile_title">Professor Console</h3>
+                <div class="muted" id="t_prof_desc" data-i18n="prof_tile_desc">Review offers and see your slots.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin:0 0 6px" id="t_tips" data-i18n="tips_title">Tips</h3>
+        <div class="tips">
+            <div class="tip" id="t_tip1" data-i18n="tip1">Paste your token and pause for a second — we’ll auto-detect your role and light up the right tile.</div>
+            <div class="tip" id="t_tip2" data-i18n="tip2">Press <b>Enter</b> to quick-launch your detected console after pasting a valid token.</div>
+            <div class="tip" id="t_tip3" data-i18n="tip3">We never store your token server-side here — it only goes to your browser’s storage.</div>
+        </div>
+    </div>
+</div>
+
+<!-- welcome overlay -->
+<div id="welcome" class="welcome" aria-hidden="true">
+    <div class="welcome-card">
+        <p class="welcome-title" id="wSmall">Welcome</p>
+        <p class="welcome-big" id="wBig">Welcome to the Scheduler Dashboard</p>
+        <p class="welcome-sub" id="wSub">Preparing your dashboard<span class="pulse-dot"></span></p>
+    </div>
+</div>
+
+<!-- account selector overlay -->
+<div id="acctSel" class="welcome" aria-hidden="true">
+    <div class="welcome-card select-card">
+        <div class="sel-head">
+            <h3 id="selTitle" style="margin:0">Select account</h3>
+            <input id="selSearch" class="inp" style="max-width:300px" placeholder="Search by name…">
+        </div>
+        <div id="selList" class="sel-list"></div>
+        <div class="sel-actions">
+            <button class="btn" id="btnSelCancel">Cancel</button>
+            <button class="btn primary" id="btnSelUse" disabled>Use account</button>
+        </div>
+        <div id="selMsg" class="muted" style="margin-top:6px"></div>
+    </div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>

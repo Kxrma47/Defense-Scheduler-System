@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Professor Console</title>
+    <link rel="stylesheet" href="professor.css">
+</head>
+<body>
+<!-- Floating decorative elements -->
+<div class="floating-element"></div>
+<div class="floating-element"></div>
+<div class="floating-element"></div>
+<div class="floating-element"></div>
+
+<div class="wrap">
+    <div class="bar">
+        <div>
+            <h1 class="title" data-i18n="app_title">Professor Console</h1>
+            <div class="sub" id="me"></div>
+        </div>
+        <div class="controls">
+            <div id="clock" class="clock" aria-live="polite">--:--:-- MSK</div>
+            <div class="inline" aria-label="Language">
+                <button class="mini lang" id="lang_en" data-lang="en" title="English">EN</button>
+                <button class="mini lang" id="lang_ru" data-lang="ru" title="Русский">RU</button>
+            </div>
+            <button class="btn ghost" id="btnBack" onclick="logout(event)" data-i18n="back_to_login">← Back to login</button>
+        </div>
+    </div>
+
+    <!-- TOP ROW: Schedule Overview + My Offers -->
+    <div class="row">
+        <div class="col-6">
+            <!-- OVERVIEW + CHARTS -->
+            <div class="card">
+                <h3 class="panel-title">
+                    <span data-i18n="schedule_overview">Schedule Overview</span>
+                    <span class="chip"><span style="width:8px;height:8px;border-radius:999px;background:#60a5fa;display:inline-block"></span> <span data-i18n="live_from_slots">Live from your slots</span></span>
+                </h3>
+                <div class="charts">
+                    <div class="chartbox">
+                        <h4 style="margin:0 0 6px" data-i18n="approval_split">Approval Split</h4>
+                        <canvas id="donut" title="Hover to see counts & percentages"></canvas>
+                        <div class="legend" id="donutMeta"></div>
+                        <div class="chart-tip" id="tip-donut" role="tooltip" aria-hidden="true"></div>
+                        
+                        <div style="margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px;">
+                            <h4 style="margin:0 0 6px">Polls & Offers Status</h4>
+                            <canvas id="statusBars" title="Hover bars for status counts"></canvas>
+                            <div class="muted" id="statusBarsMeta">Polls voting status and offer status breakdown</div>
+                            <div class="chart-tip" id="tip-statusBars" role="tooltip" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="canvas-card">
+                        <div class="chartbox">
+                            <h4 style="margin:0 0 6px" data-i18n="weekly_distribution">Weekly Distribution</h4>
+                            <canvas id="bars" title="Hover bars for weekday totals"></canvas>
+                            <div class="muted" id="barsMeta">Slots by weekday (MSK)</div>
+                            <div class="chart-tip" id="tip-bars" role="tooltip" aria-hidden="true"></div>
+                        </div>
+                        <div class="chartbox">
+                            <h4 style="margin:0 0 6px" data-i18n="timeline_by_date">Timeline (by date)</h4>
+                            <canvas id="spark" title="Hover to see totals per day"></canvas>
+                            <div class="muted" id="sparkMeta">Slots per day — earliest → latest (MSK)</div>
+                            <div class="chart-tip" id="tip-spark" role="tooltip" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <!-- OFFERS -->
+            <div class="card">
+                <h3 class="panel-title">
+                    <span data-i18n="my_offers">My Offers</span>
+                    <span class="muted" id="offersMeta"></span>
+                </h3>
+                <div class="inline" id="offerFilterBar" style="margin-bottom:8px">
+                    <button class="mini toggle active" id="ofbtn_all" onclick="setOfferFilter('all')"><span data-i18n="filter_all">All</span> (<span id="ofc_all">0</span>)</button>
+                    <button class="mini toggle" id="ofbtn_accepted" onclick="setOfferFilter('accepted')"><span data-i18n="filter_accepted">Accepted</span> (<span id="ofc_accepted">0</span>)</button>
+                    <button class="mini toggle" id="ofbtn_pending" onclick="setOfferFilter('pending')"><span data-i18n="filter_pending">Pending</span> (<span id="ofc_pending">0</span>)</button>
+                    <button class="mini toggle" id="ofbtn_declined" onclick="setOfferFilter('declined')"><span data-i18n="filter_declined">Declined</span> (<span id="ofc_declined">0</span>)</button>
+                </div>
+                <div id="offersBox"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTTOM ROW: My Scheduled Slots + Available Polls -->
+    <div class="row">
+        <div class="col-6">
+            <!-- SLOTS + NOTES -->
+            <div class="card">
+                <h3 class="panel-title">
+                    <span data-i18n="my_slots">My Scheduled Slots</span>
+                    <span class="inline">
+                <input id="slotSearchName" class="inp" placeholder="Search by schedule name…" data-i18n-placeholder="search_by_name">
+                <select id="slotStatusFilter" class="sel" style="width:160px">
+                  <option value="all" data-i18n="all_statuses">All statuses</option>
+                  <option value="approved" data-i18n="approved">Approved</option>
+                  <option value="pending" data-i18n="pending">Pending</option>
+                </select>
+                <button id="btnSlotsSection" class="mini" onclick="toggleSlotsSection()" data-i18n="collapse">Collapse</button>
+              </span>
+                </h3>
+                <div id="slotsBody">
+                    <div id="scheduleGrid" class="schedule-grid" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6">
+            <!-- POLLS -->
+            <div class="card">
+                <h3 class="panel-title">
+                    <span data-i18n="available_polls">Available Polls</span>
+                    <span class="inline">
+                <input id="pollSearch" class="inp" placeholder="Search polls…" data-i18n-placeholder="search_polls">
+                <button id="btnPollsSection" class="mini" onclick="togglePollsSection()" data-i18n="collapse">Collapse</button>
+              </span>
+                </h3>
+                <div id="pollsBody">
+                    <div id="pollsList" class="polls-list" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<div id="welcome" class="welcome" aria-hidden="true">
+    <div class="welcome-card">
+        <p class="welcome-title" id="wSmall" data-i18n="hello">Hello</p>
+        <p class="welcome-big" id="wBig" data-i18n="welcome_prof">Welcome, Professor</p>
+        <p class="welcome-sub" id="wSub"><span data-i18n="loading_dashboard">Loading your dashboard</span><span class="pulse-dot"></span></p>
+    </div>
+</div>
+
+<!-- Modal root -->
+<div id="dialogRoot" class="modal" aria-hidden="true" role="dialog"></div>
+
+<script src="professor.js"></script>
+</body>
+</html>
