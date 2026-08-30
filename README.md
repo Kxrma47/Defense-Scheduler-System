@@ -79,22 +79,22 @@ The Defense Scheduler is a full-stack web application that streamlines the proce
 ### Prerequisites
 
 - **PHP 8.3+** (required for Composer dependencies)
+- **PDO PostgreSQL extension** (`pdo_pgsql`)
 - **PostgreSQL** (database server)
 - **Composer** (PHP dependency manager)
-- **jq** (JSON processor for testing scripts)
+- **jq** (only required for the data-population script)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
-   cd PluginForHSE
+   git clone https://github.com/Kxrma47/Defense-Scheduler-System.git
+   cd Defense-Scheduler-System
    ```
 
 2. **Install PHP dependencies**
    ```bash
-   cd backend
-   composer install
+   composer install --working-dir=backend
    ```
 
 3. **Set up PostgreSQL database**
@@ -103,13 +103,25 @@ The Defense Scheduler is a full-stack web application that streamlines the proce
    psql -d defense -f database/init.sql
    ```
 
-4. **Start the development server**
+   > **Warning:** `database/init.sql` recreates the application tables. Run it
+   > only for a new development database or when existing local data can be
+   > discarded.
+
+4. **Configure the database connection**
+   ```bash
+   export PGHOST=localhost
+   export PGDATABASE=defense
+   export PGUSER="$(whoami)"
+   # Set PGPASSWORD as well when your PostgreSQL role requires a password.
+   ```
+
+5. **Start the development server from the repository root**
    ```bash
    php -S localhost:8000 router.php
    ```
 
-5. **Access the application**
-   - Open `http://localhost:8000` in your browser
+6. **Access the application**
+   - Open `http://localhost:8000/frontend/index.html` in your browser
    - Use the default manager token: `devtoken`
 
 ### Default Credentials
@@ -117,6 +129,11 @@ The Defense Scheduler is a full-stack web application that streamlines the proce
 - **Manager Token**: `devtoken` (created automatically)
 - **Database**: `defense` (PostgreSQL)
 - **Server**: `localhost:8000`
+
+The backend reads `PGHOST`, `PGDATABASE`, `PGUSER`, and `PGPASSWORD`. The
+development manager can also be overridden with `DEFAULT_MANAGER_NAME`,
+`DEFAULT_MANAGER_EMAIL`, and `DEFAULT_MANAGER_TOKEN`. Never deploy the example
+`devtoken` credential to a public or production environment.
 
 ## 📁 File Structure
 
@@ -330,4 +347,3 @@ The system supports multiple languages:
 **Professors Console**
 <img width="1621" height="986" alt="Screenshot 2025-10-23 at 6 23 52 PM" src="https://github.com/user-attachments/assets/13825828-705d-44a6-87c9-a3885e7bde1b" />
 <img width="1625" height="990" alt="Screenshot 2025-10-23 at 6 24 22 PM" src="https://github.com/user-attachments/assets/6e6fed8d-d42c-4aa7-992d-825f39b81bc1" />
-
